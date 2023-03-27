@@ -38,7 +38,7 @@ namespace ToDoList
 
         public override string ToString()
         {
-            var txt = "O que tem pra fazer: " + this.Description + "\nDa categoria: " + this.Category + "\nFoi criada: " + this.Created + "\n";
+            var txt = "\nO que tem pra fazer: " + this.Description + "\nDa categoria: " + this.Category + "\nFoi criada: " + this.Created + "\nPrevisao de termino: " + this.Duedate + "\n";
             if (this.Status)
             {
                 txt += "Status: Finalizado";

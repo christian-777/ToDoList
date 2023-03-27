@@ -5,15 +5,18 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        List<string> category = new List<string>(); 
+        List<string> category = new List<string>();
         List<Person> person = new List<Person>();
         List<ToDo> todo = new List<ToDo>();
         List<ToDo> todoFinalized = new List<ToDo>();
 
-        if (!File.Exists("Person.txt"))
+        if (!File.Exists("Person.txt") && !File.Exists("Category.txt"))
         {
             person.Add(CreatePerson());
             WriteFilePerson(person);
+
+            category.Add(CreateCategory());
+            WriteFileCategory(category);
         }
         else
         {
@@ -36,14 +39,24 @@ internal class Program
             Console.WriteLine("2- Cadastrar categoria");
             Console.WriteLine("3- Cadastrar Tarefa");
             Console.WriteLine("4- Concluir tarefas");
-            Console.WriteLine("5- Mostrar tarefas em andamento");
-            Console.WriteLine("6- Mostrar tarefas concluidas");
-            Console.WriteLine("7- Editar tarefas");
+            Console.WriteLine("5- Reativar tarefas");
+            Console.WriteLine("6- Mostrar tarefas em andamento");
+            Console.WriteLine("7- Mostrar tarefas concluidas");
+            Console.WriteLine("8- Editar tarefas");
             Console.WriteLine("0- Sair");
-            choice = int.Parse(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out choice))
+            {
+                Console.WriteLine("Digite um numero");
+                Console.ReadKey();
+                continue;
+            }
 
             switch (choice)
             {
+                case 0:
+                    Console.WriteLine("Saindo...");
+                    Thread.Sleep(2000);
+                    break;
                 case 1:
                     person.Add(CreatePerson());
                     WriteFilePerson(person);
@@ -60,14 +73,32 @@ internal class Program
                     break;
 
                 case 4:
-                    FinalizeToDo(todo, todoFinalized);
+                    ChangeToDoStatus(todo, todoFinalized);
                     todo = ReadFileToDo("ToDo.txt", false);
                     todoFinalized = ReadFileToDo("ToDo.txt", true);
+                    break;
+                case 5:
+                    ChangeToDoStatus(todoFinalized, todo);
+                    todo = ReadFileToDo("ToDo.txt", false);
+                    todoFinalized = ReadFileToDo("ToDo.txt", true);
+                    break;
+                case 6:
+                    Console.WriteLine(PrintToDo(todo));
+                    break;
+                case 7:
+                    Console.WriteLine(PrintToDo(todoFinalized));
+                    break;
+                case 8:
+                    todo = EditTodo(todo, person, category);
+                    WriteFileToDo(todo, todoFinalized);
+                    break;
+                default:
+                    Console.WriteLine("Opcao invalida, digite novamente.");
+                    Console.ReadKey();
                     break;
             }
         } while (choice != 0);
     }
-
     private static List<string>? ReadFileCategory(string p)
     {
         List<string> l = new List<string>();
@@ -100,7 +131,10 @@ internal class Program
 
                 var idPerson = Guid.Parse(aux[0]);
                 var name = aux[1];
+
+
                 Person person = new Person(idPerson, name);
+
                 l.Add(person);
 
             } while (!sr.EndOfStream);
@@ -211,6 +245,7 @@ internal class Program
         }
         catch
         {
+
         }
     }
 
@@ -236,12 +271,19 @@ internal class Program
         var description = Console.ReadLine();
 
         ToDo todo = new ToDo(description);
+        char choice;
         int cc = 0;
         int cp = 0;
         do
         {
             Console.WriteLine("deseja adicionar uma categoria? [s] - sim [n] - nao");
-            var choice = char.Parse(Console.ReadLine());
+            if (!char.TryParse(Console.ReadLine(), out choice))
+            {
+                Console.WriteLine("Digite uma letra valida.");
+                Console.ReadLine();
+                continue;
+            }
+
 
             if (choice == 's')
             {
@@ -266,19 +308,38 @@ internal class Program
         do
         {
             Console.WriteLine("deseja adicionar uma data de termino? [s] - sim [n] - nao");
-            var choice = char.Parse(Console.ReadLine());
+            if (!char.TryParse(Console.ReadLine(), out choice))
+            {
+                Console.WriteLine("Digite uma letra valida.");
+                Console.ReadLine();
+                continue;
+            }
 
             if (choice == 's')
             {
                 int i = 1;
                 Console.WriteLine("Qual dia: ");
-                var day = int.Parse(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out var day))
+                {
+                    Console.WriteLine("Digite um numero valido.");
+                    Console.ReadLine();
+                    continue;
+                }
                 Console.WriteLine("Qual mes: ");
-                var month = int.Parse(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out var month))
+                {
+                    Console.WriteLine("Digite um numero valido.");
+                    Console.ReadLine();
+                    continue;
+                }
                 Console.WriteLine("Qual ano: ");
-                var year = int.Parse(Console.ReadLine());
-
-                todo.SetDueDate(DateTime.Parse(month + "/" + day + "/" + year));
+                if (!int.TryParse(Console.ReadLine(), out var year))
+                {
+                    Console.WriteLine("Digite um numero valido.");
+                    Console.ReadLine();
+                    continue;
+                }
+                todo.SetDueDate(DateTime.Parse(day + "/" + month + "/" + year));
                 break;
             }
             else
@@ -290,7 +351,12 @@ internal class Program
         do
         {
             Console.WriteLine("deseja adicionar um responsavel pela tarefa? [s] - sim [n] - nao");
-            var choice = char.Parse(Console.ReadLine());
+            if (!char.TryParse(Console.ReadLine(), out choice))
+            {
+                Console.WriteLine("Digite uma letra valida.");
+                Console.ReadLine();
+                continue;
+            }
 
             if (choice == 's')
             {
@@ -316,21 +382,133 @@ internal class Program
         return todo;
     }
 
-    private static void FinalizeToDo(List<ToDo> todo, List<ToDo> todoFinalized)
+    private static void ChangeToDoStatus(List<ToDo> l1, List<ToDo> l2)
     {
 
-        Console.WriteLine("Finalize suas tarefas aqui: ");
-        foreach (ToDo item in todo)
+        Console.WriteLine("Altere o status da sua tarefa aqui: ");
+        foreach (ToDo item in l1)
         {
             Console.WriteLine(item.ToString());
-            Console.WriteLine("Deseja finalizar essa tarefa? [s] - sim [n] - nao");
-            var choice = char.Parse(Console.ReadLine());
+            Console.WriteLine("Deseja alterar essa tarefa? [s] - sim [n] - nao");
+            if (!char.TryParse(Console.ReadLine(), out var choice))
+            {
+                Console.WriteLine("Digite uma letra valida.");
+                Console.ReadLine();
+                continue;
+            }
 
             if (choice == 's')
             {
                 item.SetStatus();
             }
         }
-        WriteFileToDo(todo, todoFinalized);
+        WriteFileToDo(l1, l2);
+    }
+
+    private static string PrintToDo(List<ToDo> l)
+    {
+        string txt = "";
+        foreach (ToDo item in l)
+        {
+            txt += item.ToString();
+        }
+        return txt;
+    }
+
+    private static List<ToDo> EditTodo(List<ToDo>? todo, List<Person> person, List<string> category)
+    {
+        int i = 1;
+        int choice;
+        foreach (ToDo item in todo)
+        {
+            Console.WriteLine("Gostaria de editar a tarefa:");
+            Console.WriteLine(item.ToString());
+            do
+            {
+                Console.WriteLine("1 - Descricao");
+                Console.WriteLine("2 - Categoria");
+                Console.WriteLine("3 - Data de finalizacao");
+                Console.WriteLine("4 - Pessoa responsável");
+                Console.WriteLine("0 - Nao desejo editar nenhum item/ sair do menu");
+                if (!int.TryParse(Console.ReadLine(), out choice))
+                {
+                    Console.WriteLine("Digite um numero valido.");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                switch (choice)
+                {
+                    case 0:
+                        Console.WriteLine("Saindo...");
+                        Thread.Sleep(2000);
+                        break;
+                    case 1:
+                        Console.WriteLine("Informe a nova descricao:");
+                        string d = Console.ReadLine();
+                        item.SetDescription(d);
+                        break;
+                    case 2:
+                        i = 1;
+                        int cc = 0;
+                        Console.WriteLine("Escolha uma categoria: ");
+                        foreach (string s in category)
+                        {
+                            Console.WriteLine(i + "- " + s);
+                            i++;
+                        }
+                        Console.Write(": ");
+                        if (int.TryParse(Console.ReadLine(), out cc))
+                        {
+                            Console.WriteLine("Digite um numero valido.");
+                            Console.ReadKey();
+                            continue;
+                        }
+                        item.SetCategory(category[cc - 1]);
+                        break;
+                    case 3:
+                        Console.WriteLine("Informe a nova data de finalizacao.");
+                        Console.WriteLine("Qual dia: ");
+                        if (!int.TryParse(Console.ReadLine(), out var day))
+                        {
+                            Console.WriteLine("Digite um numero valido.");
+                            Console.ReadLine();
+                            continue;
+                        }
+                        Console.WriteLine("Qual mes: ");
+                        if (!int.TryParse(Console.ReadLine(), out var month))
+                        {
+                            Console.WriteLine("Digite um numero valido.");
+                            Console.ReadLine();
+                            continue;
+                        }
+                        Console.WriteLine("Qual ano: ");
+                        if (!int.TryParse(Console.ReadLine(), out var year))
+                        {
+                            Console.WriteLine("Digite um numero valido.");
+                            Console.ReadLine();
+                            continue;
+                        }
+                        string dueDate = day + "/" + month + "/" + year;
+                        item.SetDueDate(DateTime.Parse(dueDate));
+                        break;
+                    case 4:
+                        i = 1;
+                        int cp = 0;
+                        Console.WriteLine("Escolha um responsavel: ");
+                        foreach (var p in person)
+                        {
+                            Console.WriteLine(i + "- " + p);
+                            i++;
+                        }
+                        Console.Write(": ");
+                        cp = int.Parse(Console.ReadLine());
+                        item.SetPerson(person[(cp - 1)]);
+                        break;
+
+                }
+            } while (choice != 0);
+        }
+        return todo;
     }
 }
