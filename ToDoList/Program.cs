@@ -31,9 +31,10 @@ internal class Program
 
     private static void Menu(List<string> category, List<Person> person, List<ToDo> todo, List<ToDo> todoFinalized)
     {
-        int choice;
+        int choice=1;
         do
         {
+            Console.Clear();
             Console.WriteLine("Escolha uma opcao:");
             Console.WriteLine("1- Cadastrar pessoa");
             Console.WriteLine("2- Cadastrar categoria");
@@ -44,10 +45,12 @@ internal class Program
             Console.WriteLine("7- Mostrar tarefas concluidas");
             Console.WriteLine("8- Editar tarefas");
             Console.WriteLine("0- Sair");
+            Console.Write(": ");
             if (!int.TryParse(Console.ReadLine(), out choice))
             {
                 Console.WriteLine("Digite um numero");
                 Console.ReadKey();
+                choice = 1;
                 continue;
             }
 
@@ -84,9 +87,11 @@ internal class Program
                     break;
                 case 6:
                     Console.WriteLine(PrintToDo(todo));
+                    Console.ReadKey();
                     break;
                 case 7:
                     Console.WriteLine(PrintToDo(todoFinalized));
+                    Console.ReadKey();
                     break;
                 case 8:
                     todo = EditTodo(todo, person, category);
@@ -114,7 +119,7 @@ internal class Program
         }
         catch
         {
-            Console.WriteLine("Sem Categorias cadastradas");
+            //Console.WriteLine("Sem Categorias cadastradas");
         }
         return l;
     }
@@ -142,7 +147,7 @@ internal class Program
         }
         catch
         {
-            Console.WriteLine("Sem Pessoas cadastradas");
+            //Console.WriteLine("Sem Pessoas cadastradas");
         }
         return l;
     }
@@ -186,7 +191,7 @@ internal class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Sua ToDo esta vazia");
+            //Console.WriteLine("Sua ToDo esta vazia");
         }
         return l;
     }
@@ -299,9 +304,13 @@ internal class Program
                 todo.SetCategory(category[cc - 1]);
                 break;
             }
-            else
+            else if(choice == 'n')
             {
                 break;
+            }
+            else
+            {
+                Console.WriteLine("Digite uma opcao valida");
             }
         } while (true);
 
@@ -339,12 +348,17 @@ internal class Program
                     Console.ReadLine();
                     continue;
                 }
-                todo.SetDueDate(DateTime.Parse(day + "/" + month + "/" + year));
+                
+                todo.SetDueDate(DateTime.Parse($"{year}, {month}, {day}"));
+                break;
+            }
+            else if(choice=='n')
+            {
                 break;
             }
             else
             {
-                break;
+                Console.WriteLine("digite uma opcao valida");
             }
         } while (true);
 
@@ -372,10 +386,14 @@ internal class Program
                 todo.SetPerson(person[(cp - 1)]);
                 break;
             }
-            else
+            else if(choice=='n')
             {
                 todo.SetPerson(person[0]);
                 break;
+            }
+            else
+            {
+                Console.WriteLine("Digite uma opcao valida");
             }
         } while (true);
 
@@ -389,7 +407,7 @@ internal class Program
         foreach (ToDo item in l1)
         {
             Console.WriteLine(item.ToString());
-            Console.WriteLine("Deseja alterar essa tarefa? [s] - sim [n] - nao");
+            Console.WriteLine("Deseja alterar essa tarefa? [s] - sim [qualquer tecla (menos s)] - nao");
             if (!char.TryParse(Console.ReadLine(), out var choice))
             {
                 Console.WriteLine("Digite uma letra valida.");
@@ -442,6 +460,7 @@ internal class Program
                     case 0:
                         Console.WriteLine("Saindo...");
                         Thread.Sleep(2000);
+                        Console.Clear();
                         break;
                     case 1:
                         Console.WriteLine("Informe a nova descricao:");
@@ -458,7 +477,7 @@ internal class Program
                             i++;
                         }
                         Console.Write(": ");
-                        if (int.TryParse(Console.ReadLine(), out cc))
+                        if (!int.TryParse(Console.ReadLine(), out cc))
                         {
                             Console.WriteLine("Digite um numero valido.");
                             Console.ReadKey();
@@ -489,8 +508,8 @@ internal class Program
                             Console.ReadLine();
                             continue;
                         }
-                        string dueDate = day + "/" + month + "/" + year;
-                        item.SetDueDate(DateTime.Parse(dueDate));
+                        
+                        item.SetDueDate(DateTime.Parse($"{year}, {month}, {day}"));
                         break;
                     case 4:
                         i = 1;

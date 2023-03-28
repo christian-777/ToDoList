@@ -47,7 +47,7 @@ namespace ToDoList
             {
                 txt += "Status: Em andamento";
             }
-            txt += "\nPessoa respnsavel: " + this.Owner.Name;
+            txt += "\nPessoa respnsavel: " + this.Owner.Name+"\n";
             return txt;
         }
 
