@@ -28,7 +28,6 @@ internal class Program
 
         Menu(category, person, todo, todoFinalized);
     }
-
     private static void Menu(List<string> category, List<Person> person, List<ToDo> todo, List<ToDo> todoFinalized)
     {
         int choice=1;
@@ -123,7 +122,6 @@ internal class Program
         }
         return l;
     }
-
     private static List<Person>? ReadFilePerson(string p)
     {
         List<Person> l = new List<Person>();
@@ -151,7 +149,6 @@ internal class Program
         }
         return l;
     }
-
     private static List<ToDo>? ReadFileToDo(string p, bool s)
     {
         List<ToDo> l = new List<ToDo>();
@@ -195,7 +192,6 @@ internal class Program
         }
         return l;
     }
-
     private static void WriteFilePerson(List<Person> lp)
     {
         try
@@ -213,7 +209,6 @@ internal class Program
 
         }
     }
-
     private static void WriteFileCategory(List<string> lc)
     {
         try
@@ -231,7 +226,6 @@ internal class Program
 
         }
     }
-
     private static void WriteFileToDo(List<ToDo> lt, List<ToDo> ltf)
     {
         try
@@ -253,7 +247,6 @@ internal class Program
 
         }
     }
-
     private static Person CreatePerson()
     {
         Console.WriteLine("Digite seu nome: ");
@@ -261,7 +254,6 @@ internal class Program
 
         return new Person(name);
     }
-
     private static string CreateCategory()
     {
         Console.WriteLine("Digite o nome da categoria: ");
@@ -269,7 +261,6 @@ internal class Program
 
         return category;
     }
-
     private static ToDo CreateToDo(List<string> category, List<Person> person)
     {
         Console.WriteLine("Qual a descricao da tarefa: ");
@@ -277,7 +268,6 @@ internal class Program
 
         ToDo todo = new ToDo(description);
         char choice;
-        int cc = 0;
         int cp = 0;
         do
         {
@@ -292,16 +282,7 @@ internal class Program
 
             if (choice == 's')
             {
-                int i = 1;
-                Console.WriteLine("Escolha uma categoria: ");
-                foreach (string s in category)
-                {
-                    Console.WriteLine(i + "- " + s);
-                    i++;
-                }
-                Console.Write(": ");
-                cc = int.Parse(Console.ReadLine());
-                todo.SetCategory(category[cc - 1]);
+                todo.SetCategory(category[ChoiceCategory(category)]);
                 break;
             }
             else if(choice == 'n')
@@ -325,31 +306,8 @@ internal class Program
             }
 
             if (choice == 's')
-            {
-                int i = 1;
-                Console.WriteLine("Qual dia: ");
-                if (!int.TryParse(Console.ReadLine(), out var day))
-                {
-                    Console.WriteLine("Digite um numero valido.");
-                    Console.ReadLine();
-                    continue;
-                }
-                Console.WriteLine("Qual mes: ");
-                if (!int.TryParse(Console.ReadLine(), out var month))
-                {
-                    Console.WriteLine("Digite um numero valido.");
-                    Console.ReadLine();
-                    continue;
-                }
-                Console.WriteLine("Qual ano: ");
-                if (!int.TryParse(Console.ReadLine(), out var year))
-                {
-                    Console.WriteLine("Digite um numero valido.");
-                    Console.ReadLine();
-                    continue;
-                }
-                
-                todo.SetDueDate(DateTime.Parse($"{year}, {month}, {day}"));
+            {   
+                todo.SetDueDate(ChoiceDate());
                 break;
             }
             else if(choice=='n')
@@ -374,16 +332,7 @@ internal class Program
 
             if (choice == 's')
             {
-                int i = 1;
-                Console.WriteLine("Escolha um responsavel: ");
-                foreach (var p in person)
-                {
-                    Console.WriteLine(i + "- " + p);
-                    i++;
-                }
-                Console.Write(": ");
-                cp = int.Parse(Console.ReadLine());
-                todo.SetPerson(person[(cp - 1)]);
+                todo.SetPerson(ChoicePerson(person));
                 break;
             }
             else if(choice=='n')
@@ -399,7 +348,6 @@ internal class Program
 
         return todo;
     }
-
     private static void ChangeToDoStatus(List<ToDo> l1, List<ToDo> l2)
     {
 
@@ -422,7 +370,6 @@ internal class Program
         }
         WriteFileToDo(l1, l2);
     }
-
     private static string PrintToDo(List<ToDo> l)
     {
         string txt = "";
@@ -432,7 +379,6 @@ internal class Program
         }
         return txt;
     }
-
     private static List<ToDo> EditTodo(List<ToDo>? todo, List<Person> person, List<string> category)
     {
         int i = 1;
@@ -468,66 +414,103 @@ internal class Program
                         item.SetDescription(d);
                         break;
                     case 2:
-                        i = 1;
-                        int cc = 0;
-                        Console.WriteLine("Escolha uma categoria: ");
-                        foreach (string s in category)
-                        {
-                            Console.WriteLine(i + "- " + s);
-                            i++;
-                        }
-                        Console.Write(": ");
-                        if (!int.TryParse(Console.ReadLine(), out cc))
-                        {
-                            Console.WriteLine("Digite um numero valido.");
-                            Console.ReadKey();
-                            continue;
-                        }
-                        item.SetCategory(category[cc - 1]);
+                        
+                        item.SetCategory(category[ChoiceCategory(category)]);
                         break;
                     case 3:
                         Console.WriteLine("Informe a nova data de finalizacao.");
-                        Console.WriteLine("Qual dia: ");
-                        if (!int.TryParse(Console.ReadLine(), out var day))
-                        {
-                            Console.WriteLine("Digite um numero valido.");
-                            Console.ReadLine();
-                            continue;
-                        }
-                        Console.WriteLine("Qual mes: ");
-                        if (!int.TryParse(Console.ReadLine(), out var month))
-                        {
-                            Console.WriteLine("Digite um numero valido.");
-                            Console.ReadLine();
-                            continue;
-                        }
-                        Console.WriteLine("Qual ano: ");
-                        if (!int.TryParse(Console.ReadLine(), out var year))
-                        {
-                            Console.WriteLine("Digite um numero valido.");
-                            Console.ReadLine();
-                            continue;
-                        }
-                        
-                        item.SetDueDate(DateTime.Parse($"{year}, {month}, {day}"));
+                        item.SetDueDate(ChoiceDate());
                         break;
                     case 4:
-                        i = 1;
-                        int cp = 0;
-                        Console.WriteLine("Escolha um responsavel: ");
-                        foreach (var p in person)
-                        {
-                            Console.WriteLine(i + "- " + p);
-                            i++;
-                        }
-                        Console.Write(": ");
-                        cp = int.Parse(Console.ReadLine());
-                        item.SetPerson(person[(cp - 1)]);
+                        item.SetPerson(ChoicePerson(person));
                         break;
 
                 }
             } while (choice != 0);
         }
         return todo;
+    }
+    private static int ChoiceCategory(List<string> category)
+    {
+        do
+        {
+            Console.Clear();
+            int i = 1;
+            Console.WriteLine("Escolha uma categoria: ");
+            foreach (string s in category)
+            {
+                Console.WriteLine(i + "- " + s);
+                i++;
+            }
+            Console.Write(": ");
+            if(!int.TryParse(Console.ReadLine(), out var cc))
+            {
+                continue;
+            }
+            if(cc<=0 || cc > category.Count)
+            {
+                continue;
+            }
+            return (cc-1);
+        } while (true);
+    }
+    private static DateTime ChoiceDate()
+    {
+        do
+        {
+            Console.Clear();
+            Console.WriteLine("Qual dia: ");
+            if (!int.TryParse(Console.ReadLine(), out var day))
+            {
+                Console.WriteLine("Digite um numero valido.");
+                Console.ReadLine();
+                continue;
+            }
+            Console.WriteLine("Qual mes: ");
+            if (!int.TryParse(Console.ReadLine(), out var month))
+            {
+                Console.WriteLine("Digite um numero valido.");
+                Console.ReadLine();
+                continue;
+            }
+            Console.WriteLine("Qual ano: ");
+            if (!int.TryParse(Console.ReadLine(), out var year))
+            {
+                Console.WriteLine("Digite um numero valido.");
+                Console.ReadLine();
+                continue;
+            }
+
+            if(!DateTime.TryParse($"{year}, {month}, {day}", out var duedate))
+            {
+                Console.WriteLine("teste");
+                continue;
+            }
+            return duedate;
+        } while (true);
+    }
+    private static Person ChoicePerson(List<Person> person)
+    {
+        do
+        {
+            Console.Clear();
+            int i = 1;
+            Console.WriteLine("Escolha um responsavel: ");
+            foreach (var p in person)
+            {
+                Console.WriteLine(i + "- " + p);
+                i++;
+            }
+            Console.Write(": ");
+            if (!int.TryParse(Console.ReadLine(), out var cp))
+            {
+                continue;
+            }
+            if (cp <= 0 || cp > person.Count)
+            {
+                continue;
+            }
+            return person[cp-1];
+        } while (true);
     }
 }
